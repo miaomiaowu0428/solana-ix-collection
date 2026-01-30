@@ -3,7 +3,9 @@ use solana_sdk::{pubkey, pubkey::Pubkey};
 use utils::IndexedInstruction;
 
 use crate::system_ix::transfer_like::{
-    spl_program::SplTransferChecked, stake_program::WithdrawIx, transfer::Transfer,
+    spl_program::{SplCloseAccount, SplTransferChecked},
+    stake_program::WithdrawIx,
+    transfer::Transfer,
 };
 
 pub mod spl_program;
@@ -16,6 +18,7 @@ pub enum TransferLike {
     Transfer(Transfer),
     Withdraw(WithdrawIx),
     WsolTransfer(SplTransferChecked),
+    WsolClose(SplCloseAccount),
 }
 
 impl TryFrom<&IndexedInstruction> for TransferLike {
@@ -37,6 +40,7 @@ impl TryFrom<&IndexedInstruction> for TransferLike {
             ix,
             Transfer => Transfer,
             Withdraw => WithdrawIx,
+            WsolClose => SplCloseAccount,
         );
 
         if let Some(value) = SplTransferChecked::from_indexed_instruction(ix)
@@ -66,6 +70,13 @@ impl From<TransferLike> for Transfer {
                 lamports: t.units,
                 remain_accounts: t.remain_accounts,
                 slot: t.slot,
+            },
+            TransferLike::WsolClose(c) => Transfer {
+                from: c.from,
+                to: c.to,
+                lamports: todo!(),
+                remain_accounts: c.remain_accounts,
+                slot: c.slot,
             },
         }
     }

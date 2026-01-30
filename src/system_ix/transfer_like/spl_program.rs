@@ -54,3 +54,26 @@ instruction!(
         units: u64,
     },
 );
+
+
+instruction!(
+    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    name: SplCloseAccount,
+    discriminator: [9],
+    accounts: {
+        from: {
+            writable: true,
+            signer: true
+        },
+        to: {
+            writable: true,
+            signer: false
+        },
+        owner: {
+            writable: true,
+            signer: false
+        },
+    },
+    data: {
+    },
+);
