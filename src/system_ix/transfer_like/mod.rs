@@ -74,7 +74,7 @@ impl From<TransferLike> for Transfer {
             TransferLike::WsolClose(c) => Transfer {
                 from: c.from,
                 to: c.to,
-                lamports: todo!(),
+                lamports: 0 /* 理论上这里是WsolAccount的余额，但是逻辑上他娘的我并不知道它的余额 */,
                 remain_accounts: c.remain_accounts,
                 slot: c.slot,
             },
