@@ -1,9 +1,17 @@
+use grpc_client::TransactionFormat;
 use solana_sdk::{pubkey, pubkey::Pubkey};
 
-use utils::IndexedInstruction;
+use solana_transaction_status_client_types::EncodedConfirmedTransactionWithStatusMeta;
+use transaction_cache::TxDetailLocal;
+use utils::{
+    IndexedInstruction,
+    balance_change::balance_changes_of_grpc,
+    flatten_instructions,
+    parse_rpc_fetched_json::{BalanceChange, balance_change_of, parse_fetched_json},
+};
 
 use crate::system_ix::transfer_like::{
-    spl_program::{SplCloseAccount, SplTransferChecked},
+    spl_program::{SplCloseAccount, SplTransfer, SplTransferChecked},
     stake_program::WithdrawIx,
     transfer::Transfer,
 };
@@ -14,70 +22,94 @@ pub mod transfer;
 
 static WSOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
-pub enum TransferLike {
-    Transfer(Transfer),
-    Withdraw(WithdrawIx),
-    WsolTransfer(SplTransferChecked),
-    WsolClose(SplCloseAccount),
+pub struct TransferLike {
+    pub from: Pubkey,
+    pub to: Pubkey,
+    pub amount: u64,
 }
 
-impl TryFrom<&IndexedInstruction> for TransferLike {
-    type Error = ();
+#[async_trait::async_trait]
+pub trait ParseTransfer {
+    async fn parse_transfer(&self) -> Vec<TransferLike>;
+}
 
-    fn try_from(ix: &IndexedInstruction) -> Result<Self, Self::Error> {
-        macro_rules! try_from_ix {
-            ($ix:expr, $( $variant:ident => $ty:ty ),+ $(,)?) => {{
-                $(
-                    if let Some(value) = <$ty>::from_indexed_instruction($ix) {
-                        return Ok(Self::$variant(value));
-                    }
-                )+
-                // return Err(());
-            }};
+#[async_trait::async_trait]
+impl ParseTransfer for TransactionFormat {
+    async fn parse_transfer(&self) -> Vec<TransferLike> {
+        let Ok(balance_changes) = balance_changes_of_grpc(self) else {
+            return vec![];
+        };
+        parse_transfer_like(&flatten_instructions(self), balance_changes)
+    }
+}
+
+#[async_trait::async_trait]
+impl ParseTransfer for TxDetailLocal {
+    async fn parse_transfer(&self) -> Vec<TransferLike> {
+        // balance_change_of 需要值类型
+        let Ok(balance_changes) = balance_change_of(self.clone()).await else {
+            return vec![];
+        };
+        // parse_fetched_json 也是异步函数
+        let ixs = parse_fetched_json(self.clone()).await;
+        parse_transfer_like(&ixs, balance_changes)
+    }
+}
+
+fn parse_transfer_like(ixs: &[IndexedInstruction], bc: Vec<BalanceChange>) -> Vec<TransferLike> {
+    let mut transfer_likes = Vec::new();
+    for ix in ixs {
+        if let Some(ix) = Transfer::from_indexed_instruction(ix) {
+            transfer_likes.push(TransferLike {
+                from: ix.from,
+                to: ix.to,
+                amount: ix.lamports,
+            });
         }
-
-        try_from_ix!(
-            ix,
-            Transfer => Transfer,
-            Withdraw => WithdrawIx,
-            WsolClose => SplCloseAccount,
-        );
-
-        if let Some(value) = SplTransferChecked::from_indexed_instruction(ix)
-            && value.mint == WSOL
+        if let Some(ix) = WithdrawIx::from_indexed_instruction(ix) {
+            transfer_likes.push(TransferLike {
+                from: ix.stake_account,
+                to: ix.destination,
+                amount: ix.amount,
+            });
+        }
+        if let Some(ix) = SplTransferChecked::from_indexed_instruction(&ix) {
+            transfer_likes.push(TransferLike {
+                from: ix.from,
+                to: ix.to,
+                amount: ix.units,
+            });
+        }
+        if let Some(ix) = SplTransfer::from_indexed_instruction(ix)
+            && bc
+                .iter()
+                .any(|bc| bc.mint == WSOL && bc.token_account == ix.from)
         {
-            return Ok(Self::WsolTransfer(value));
+            transfer_likes.push(TransferLike {
+                from: ix.from,
+                to: ix.to,
+                amount: ix.units,
+            });
         }
-
-        Err(())
-    }
-}
-
-impl From<TransferLike> for Transfer {
-    fn from(value: TransferLike) -> Self {
-        match value {
-            TransferLike::Transfer(t) => t,
-            TransferLike::Withdraw(w) => Transfer {
-                from: w.authority,
-                to: w.destination,
-                lamports: w.amount,
-                remain_accounts: w.remain_accounts,
-                slot: w.slot,
-            },
-            TransferLike::WsolTransfer(t) => Transfer {
-                from: t.from,
-                to: t.to,
-                lamports: t.units,
-                remain_accounts: t.remain_accounts,
-                slot: t.slot,
-            },
-            TransferLike::WsolClose(c) => Transfer {
-                from: c.from,
-                to: c.to,
-                lamports: 0 /* 理论上这里是WsolAccount的余额，但是逻辑上他娘的我并不知道它的余额 */,
-                remain_accounts: c.remain_accounts,
-                slot: c.slot,
-            },
+        if let Some(ix) = SplCloseAccount::from_indexed_instruction(ix) {
+            // Find the balance change for this token account (WSOL) and use its change as amount.
+            // BalanceChange.change is i128 (after - pre), take absolute value and cast to u64.
+            if let Some(bc) = bc
+                .iter()
+                .find(|bc| bc.mint == WSOL && bc.token_account == ix.from)
+            {
+                let amount = if bc.change < 0 {
+                    (-bc.change) as u64
+                } else {
+                    bc.change as u64
+                };
+                transfer_likes.push(TransferLike {
+                    from: ix.from,
+                    to: ix.to,
+                    amount,
+                });
+            }
         }
     }
+    transfer_likes
 }

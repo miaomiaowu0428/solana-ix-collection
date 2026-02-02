@@ -60,3 +60,4 @@ const-hex = "1.17.0"
 arrayvec = "0.7.6"
 arc-swap = "1.8.0"
 transaction-monitor = { git = "https://github.com/miaomiaowu0428/transaction-monitor.git" }
+transaction-cache= { git = "https://github.com/miaomiaowu0428/transaction-cache.git" }
