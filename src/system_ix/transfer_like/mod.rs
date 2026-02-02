@@ -1,4 +1,5 @@
 use grpc_client::TransactionFormat;
+use serde_json::de;
 use solana_sdk::{pubkey, pubkey::Pubkey};
 
 use solana_transaction_status_client_types::EncodedConfirmedTransactionWithStatusMeta;
@@ -22,6 +23,7 @@ pub mod transfer;
 
 static WSOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
+#[derive(Debug, Clone, Copy)]
 pub struct TransferLike {
     pub from: Pubkey,
     pub to: Pubkey,
