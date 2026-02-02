@@ -61,6 +61,9 @@ impl ParseTransfer for TxDetailLocal {
 fn parse_transfer_like(ixs: &[IndexedInstruction], bc: Vec<BalanceChange>) -> Vec<TransferLike> {
     let mut transfer_likes = Vec::new();
     for ix in ixs {
+        if !ix.is_main_ix() {
+            continue;
+        }
         if let Some(ix) = Transfer::from_indexed_instruction(ix) {
             transfer_likes.push(TransferLike {
                 from: ix.from,
