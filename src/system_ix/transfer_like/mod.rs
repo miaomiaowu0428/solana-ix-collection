@@ -30,6 +30,12 @@ pub struct TransferLike {
     pub amount: u64,
 }
 
+impl TransferLike {
+    pub fn contains(&self, pubkey: &Pubkey) -> bool {
+        self.from == *pubkey || self.to == *pubkey
+    }
+}
+
 #[async_trait::async_trait]
 pub trait ParseTransfer {
     async fn parse_transfer(&self) -> Vec<TransferLike>;
