@@ -7,6 +7,7 @@ use utils::{IndexedInstruction, impl_enum_getters};
 use crate::constants::TOKEN_2022_PROGRAM_ID;
 
 pub mod event;
+pub mod helpers;
 pub mod mayhem;
 
 instruction!(
@@ -198,6 +199,21 @@ pub enum PumpTradeIx {
     Sell(PumpSellIx),
 }
 
+impl PumpTradeIx {
+    pub fn from_indexed_instruction(ix: &IndexedInstruction) -> Option<Self> {
+        if let Some(ix) = PumpBuyIx::from_indexed_instruction(ix) {
+            return Some(Self::Buy(ix));
+        }
+        if let Some(ix) = PumpBuyExactInIx::from_indexed_instruction(ix) {
+            return Some(Self::BuyExactIn(ix));
+        }
+        if let Some(ix) = PumpSellIx::from_indexed_instruction(ix) {
+            return Some(Self::Sell(ix));
+        }
+        None
+    }
+}
+
 impl_enum_getters!(
     PumpTradeIx,
     variants = [Buy,BuyExactIn,Sell],
@@ -213,7 +229,8 @@ impl_enum_getters!(
 
 impl PumpTradeIx {
     pub fn is_mayhem(&self) -> bool {
-        self.token_program() == TOKEN_2022_PROGRAM_ID && mayhem::MAYHEM_FEE_RECV.contains(&&self.fee_recipient())
+        self.token_program() == TOKEN_2022_PROGRAM_ID
+            && mayhem::MAYHEM_FEE_RECV.contains(&&self.fee_recipient())
     }
 
     pub fn is_buy(&self) -> bool {
@@ -224,4 +241,3 @@ impl PumpTradeIx {
         }
     }
 }
-

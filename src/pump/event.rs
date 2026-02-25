@@ -7,7 +7,7 @@ instruction! {
     // 1. 程序ID：与指令保持一致
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     // 2. 事件名称：对应原 TradeEvent
-    name: TradeEventIx,
+    name: PumpTradeEvent,
     // 3. 事件鉴别符（与原 discriminator 一致）
     discriminator: [228, 69, 165, 46, 81, 203, 154, 29,189,219,127,211,78,230,97,238],
     // 4. 事件无实际 accounts（指令的 accounts 对应账户列表，事件无此概念，留空或注释说明）
