@@ -1,6 +1,6 @@
 use solana_sdk::borsh1;
-use solana_tx_parser::instruction;
 use solana_sdk::pubkey::Pubkey;
+use solana_tx_parser::instruction;
 
 // 模仿 instruction! 宏结构的 TradeEvent 定义（统一事件/指令处理风格）
 instruction! {

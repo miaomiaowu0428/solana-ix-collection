@@ -5,8 +5,6 @@ use solana_sdk::{borsh1, pubkey::Pubkey};
 use solana_tx_parser::instruction;
 use utils::IndexedInstruction;
 
-
-
 instruction! {
     program_id: "Stake11111111111111111111111111111111111111",
     discriminator: [4,0,0,0],

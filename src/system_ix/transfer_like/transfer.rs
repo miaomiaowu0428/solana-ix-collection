@@ -26,4 +26,3 @@ instruction!(
         lamports: u64,
     },
 );
-

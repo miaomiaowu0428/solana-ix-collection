@@ -31,7 +31,6 @@ instruction!(
     },
 );
 
-
 instruction!(
     program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     name: SplTransfer,
@@ -54,7 +53,6 @@ instruction!(
         units: u64,
     },
 );
-
 
 instruction!(
     program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
