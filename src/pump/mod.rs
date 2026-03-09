@@ -241,3 +241,38 @@ impl PumpTradeIx {
         }
     }
 }
+
+
+
+// 定义 migrate 指令
+instruction! {
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    name: PumpMigrateIx,
+    discriminator: [155, 234, 231, 146, 236, 158, 162, 30],
+    accounts: {
+        global: { writable: false, signer: false },
+        withdraw_authority: { writable: true, signer: false },
+        mint: { writable: false, signer: false },
+        bonding_curve: { writable: true, signer: false },
+        associated_bonding_curve: { writable: true, signer: false },
+        user: { writable: false, signer: true },
+        system_program: { writable: false, signer: false },
+        token_program: { writable: false, signer: false },
+        pump_amm: { writable: false, signer: false },
+        pool: { writable: true, signer: false },
+        pool_authority: { writable: true, signer: false },
+        pool_authority_mint_account: { writable: true, signer: false },
+        pool_authority_wsol_account: { writable: true, signer: false },
+        amm_global_config: { writable: false, signer: false },
+        wsol_mint: { writable: false, signer: false },
+        lp_mint: { writable: true, signer: false },
+        creator_vault: { writable: true, signer: false },
+        event_authority: { writable: false, signer: false },
+        program: { writable: false, signer: false },
+        user_acc_target: { writable: true, signer: false },
+        user_acc_wsol: { writable: true, signer: false },
+        token_2022_program: { writable: false, signer: false },
+        associated_token_program: { writable: false, signer: false }
+    },
+    data: {}
+}
