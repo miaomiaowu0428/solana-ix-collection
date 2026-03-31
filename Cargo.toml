@@ -52,10 +52,7 @@ prost = "0.13"
 futures = "0.3.31"
 rayon = "1.11.0"
 paste = "1.0.15"
-unshred = { git="https://github.com/miaomiaowu0428/unshred.git" }
 tokio-util = { version = "0.7.18", features = ["codec"] }
-unshred-client-lib = { git = "https://github.com/miaomiaowu0428/unshred-client-lib.git" }
-sea-orm = { version = "1.1.19", features = ["runtime-tokio-rustls", "sqlx-mysql"] }
 const-hex = "1.17.0"
 arrayvec = "0.7.6"
 arc-swap = "1.8.0"
