@@ -8,7 +8,7 @@ use crate::constants::TOKEN_2022_PROGRAM_ID;
 
 instruction!(
     program_id: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-    name: PumpBuyIx,
+    name: Transfer,
     discriminator: [3],
     accounts: {
         source: { writable: false, signer: false },
