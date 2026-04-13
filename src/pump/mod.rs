@@ -170,6 +170,13 @@ impl PumpCreateIxEnum {
             PumpCreateIxEnum::CreateV2(ix) => ix.mayhem,
         }
     }
+
+    pub fn cashback_enabled(&self) -> bool {
+        match self {
+            PumpCreateIxEnum::Create(_) => false,
+            PumpCreateIxEnum::CreateV2(c) => c.remain_data.first().unwrap_or(&0) != &0,
+        }
+    }
 }
 impl TryFrom<IndexedInstruction> for PumpCreateIxEnum {
     type Error = ();
