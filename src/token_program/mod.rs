@@ -1,3 +1,7 @@
+//! SPL Token 标准程序指令解析。
+//!
+//! 目前提供 [`Transfer`] 指令的解析支持。
+
 use solana_sdk::borsh1;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
@@ -6,6 +10,9 @@ use utils::{IndexedInstruction, impl_enum_getters};
 
 use crate::constants::TOKEN_2022_PROGRAM_ID;
 
+/// SPL Token Transfer 指令（discriminator `[3]`）。
+///
+/// `amount` 为转账数量（token 最小单位）。
 instruction!(
     program_id: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     name: Transfer,

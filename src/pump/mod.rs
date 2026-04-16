@@ -1,3 +1,12 @@
+//! Pump 协议指令解析。
+//!
+//! 包含 Pump bonding curve 的全套交互指令：
+//! - 买入：[`PumpBuyIx`]（精确 token）、[`PumpBuyExactInIx`]（精确 SOL）
+//! - 卖出：[`PumpSellIx`]
+//! - 创建：[`PumpCreateIx`] / [`PumpCreateV2Ix`]，以及统一枚举 [`PumpCreateIxEnum`]
+//! - 迁移：[`PumpMigrateIx`]（bonding curve 升移到 AMM 池）
+//! - 交易枥询：[`PumpTradeIx`]（买卖统一枚举）
+
 use solana_sdk::borsh1;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
@@ -10,19 +19,21 @@ pub mod event;
 pub mod helpers;
 pub mod mayhem;
 
+/// Pump 买入指令（精确 token 输出模式）。
+///
+/// `token_amount` 为期望购得的 token 数量，`max_sol_cost` 为最大可接受 SOL 入费量（lamports）。
 instruction!(
-    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P", // 沿用泵协议程序ID（与CreateV2一致）
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpBuyIx,
-    discriminator: [102, 6, 61, 18, 1, 218, 235, 234], // 替换为Buy指令实际8字节 discriminator（从链上指令数据前8字节提取）
+    discriminator: [102, 6, 61, 18, 1, 218, 235, 234],
     accounts: {
-        // 严格对应 AccountMeta 列表，writable/signer 与 new/new_readonly 一致
         global: { writable: false, signer: false },
         fee_recipient: { writable: true, signer: false },
         mint: { writable: false, signer: false },
         bonding_curve: { writable: true, signer: false },
         associated_bonding_curve: { writable: true, signer: false },
         associated_user: { writable: true, signer: false },
-        user: { writable: true, signer: true }, // AccountMeta::new(user, true) → 可写+签名者
+        user: { writable: true, signer: true },
         system_program: { writable: false, signer: false },
         token_program: { writable: false, signer: false },
         creator_vault: { writable: true, signer: false },
@@ -30,8 +41,8 @@ instruction!(
         program: { writable: false, signer: false },
         global_volume_accumulator: { writable: true, signer: false },
         user_volume_accumulator: { writable: true, signer: false },
-        platform_fee_config: { writable: false, signer: false }, // 对应 get_platform_fee_config 返回的账户
-        pump_fee_program: { writable: false, signer: false }, // 对应 pump_fee::PROGRAM_ADDRESS
+        platform_fee_config: { writable: false, signer: false },
+        pump_fee_program: { writable: false, signer: false },
     },
     data: {
         token_amount: u64,
@@ -39,19 +50,22 @@ instruction!(
     },
 );
 
+/// Pump 买入指令（精确 SOL 输入模式）。
+///
+/// `sol_amount_in` 为精确注入的 SOL lamports（gross，含 1% 手续费），
+/// `min_token_out` 为最少应返回的 token 数量（滑点保护）。
 instruction!(
-    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P", // 沿用泵协议程序ID（与CreateV2一致）
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpBuyExactInIx,
-    discriminator: [56,252,116,8,158,223,205,95], // 替换为Buy指令实际8字节 discriminator（从链上指令数据前8字节提取）
+    discriminator: [56,252,116,8,158,223,205,95],
     accounts: {
-        // 严格对应 AccountMeta 列表，writable/signer 与 new/new_readonly 一致
         global: { writable: false, signer: false },
         fee_recipient: { writable: true, signer: false },
         mint: { writable: false, signer: false },
         bonding_curve: { writable: true, signer: false },
         associated_bonding_curve: { writable: true, signer: false },
         associated_user: { writable: true, signer: false },
-        user: { writable: true, signer: true }, // AccountMeta::new(user, true) → 可写+签名者
+        user: { writable: true, signer: true },
         system_program: { writable: false, signer: false },
         token_program: { writable: false, signer: false },
         creator_vault: { writable: true, signer: false },
@@ -59,8 +73,8 @@ instruction!(
         program: { writable: false, signer: false },
         global_volume_accumulator: { writable: true, signer: false },
         user_volume_accumulator: { writable: true, signer: false },
-        platform_fee_config: { writable: false, signer: false }, // 对应 get_platform_fee_config 返回的账户
-        pump_fee_program: { writable: false, signer: false }, // 对应 pump_fee::PROGRAM_ADDRESS
+        platform_fee_config: { writable: false, signer: false },
+        pump_fee_program: { writable: false, signer: false },
     },
     data: {
         sol_amount_in :u64,
@@ -68,26 +82,29 @@ instruction!(
     },
 );
 
+/// Pump 卖出指令。
+///
+/// `token_amoutn`（注意：链上存在拼写错误，已原样保留）为卖出 token 数量，
+/// `min_sol_out` 为最少应返回的 SOL lamports（滑点保护）。
 instruction!(
-    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P", // 沿用泵协议程序ID（与CreateV2一致）
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpSellIx,
-    discriminator: [51,230,133,164,1,127,131,173], // 替换为Buy指令实际8字节 discriminator（从链上指令数据前8字节提取）
+    discriminator: [51,230,133,164,1,127,131,173],
     accounts: {
-        // 严格对应 AccountMeta 列表，writable/signer 与 new/new_readonly 一致
         global: { writable: false, signer: false },
         fee_recipient: { writable: true, signer: false },
         mint: { writable: false, signer: false },
         bonding_curve: { writable: true, signer: false },
         associated_bonding_curve: { writable: true, signer: false },
         associated_user: { writable: true, signer: false },
-        user: { writable: true, signer: true }, // AccountMeta::new(user, true) → 可写+签名者
+        user: { writable: true, signer: true },
         system_program: { writable: false, signer: false },
         creator_vault: { writable: true, signer: false },
         token_program: { writable: false, signer: false },
         event_authority: { writable: false, signer: false },
         program: { writable: false, signer: false },
-        platform_fee_config: { writable: false, signer: false }, // 对应 get_platform_fee_config 返回的账户
-        pump_fee_program: { writable: false, signer: false }, // 对应 pump_fee::PROGRAM_ADDRESS
+        platform_fee_config: { writable: false, signer: false },
+        pump_fee_program: { writable: false, signer: false },
     },
     data: {
         token_amoutn: u64,
@@ -95,6 +112,9 @@ instruction!(
     },
 );
 
+/// Pump 创建 token（v1）指令（标准 SPL Token）。
+///
+/// 创建 bonding curve 并初始化 token metadata，使用标准 SPL Token 程序。
 instruction!(
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpCreateIx,
@@ -123,6 +143,10 @@ instruction!(
     }
 );
 
+/// Pump 创建 token（v2）指令（支持 Mayhem / Token-2022）。
+///
+/// 在 v1 基础上增加了 `mayhem` 开关，
+/// mayhem 模式使用 Token-2022 程序发行 token。
 instruction!(
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpCreateV2Ix,
@@ -146,6 +170,7 @@ instruction!(
     }
 );
 
+/// Pump 创建指令统一枚举，同时支持 v1 和 v2。
 #[derive(Debug, Clone)]
 pub enum PumpCreateIxEnum {
     Create(PumpCreateIx),
@@ -164,6 +189,7 @@ impl_enum_getters!(
 );
 
 impl PumpCreateIxEnum {
+    /// 判断该创建指令是否为 Mayhem 模式（Token-2022 发行）。
     pub fn is_mayhem(&self) -> bool {
         match self {
             PumpCreateIxEnum::Create(ix) => false,
@@ -171,6 +197,9 @@ impl PumpCreateIxEnum {
         }
     }
 
+    /// 判断该创建指令是否启用了 cashback（返利）功能。
+    ///
+    /// 通过读取 `remain_data` 首字节非零来判定。
     pub fn cashback_enabled(&self) -> bool {
         match self {
             PumpCreateIxEnum::Create(_) => false,
@@ -188,17 +217,16 @@ impl TryFrom<IndexedInstruction> for PumpCreateIxEnum {
 impl TryFrom<&IndexedInstruction> for PumpCreateIxEnum {
     type Error = ();
     fn try_from(ix: &IndexedInstruction) -> Result<Self, Self::Error> {
-        // 使用 or_else 形成链式调用
         PumpCreateIx::from_indexed_instruction(ix)
-            .map(Self::Create) // 如果是 Some，包装成 Enum
-            .or_else(|| {
-                // 如果是 None，尝试解析 V2
-                PumpCreateV2Ix::from_indexed_instruction(ix).map(Self::CreateV2)
-            })
-            .ok_or(()) // 如果最后全是 None，转换成 Err(())
+            .map(Self::Create)
+            .or_else(|| PumpCreateV2Ix::from_indexed_instruction(ix).map(Self::CreateV2))
+            .ok_or(())
     }
 }
 
+/// Pump 交易指令统一枚举，覆盖买入（两种模式）和卖出。
+///
+/// 可遇过 [`PumpTradeIx::from_indexed_instruction`] 从链上指令自动识别并构建。
 #[derive(Debug, Clone)]
 pub enum PumpTradeIx {
     Buy(PumpBuyIx),
@@ -207,6 +235,9 @@ pub enum PumpTradeIx {
 }
 
 impl PumpTradeIx {
+    /// 尝试从单条 [`IndexedInstruction`] 解析出一个 [`PumpTradeIx`]。
+    ///
+    /// 依次尝试 `Buy` → `BuyExactIn` → `Sell`，首个匹配成功即返回。
     pub fn from_indexed_instruction(ix: &IndexedInstruction) -> Option<Self> {
         if let Some(ix) = PumpBuyIx::from_indexed_instruction(ix) {
             return Some(Self::Buy(ix));
@@ -235,11 +266,13 @@ impl_enum_getters!(
 );
 
 impl PumpTradeIx {
+    /// 判断该交易是否为 Mayhem 模式（Token-2022 + Mayhem 手续费账户）。
     pub fn is_mayhem(&self) -> bool {
         self.token_program() == TOKEN_2022_PROGRAM_ID
             && mayhem::MAYHEM_FEE_RECV.contains(&&self.fee_recipient())
     }
 
+    /// 判断该交易是否为买入方向。
     pub fn is_buy(&self) -> bool {
         match self {
             PumpTradeIx::Buy { .. } => true,
@@ -249,7 +282,9 @@ impl PumpTradeIx {
     }
 }
 
-// 定义 migrate 指令
+/// Pump bonding curve 升移到 AMM 池的迁移指令。
+///
+/// 当 bonding curve 到达升移阈值时就会触发此指令，它将汁动性迁移到 Pump AMM 池。
 instruction! {
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpMigrateIx,

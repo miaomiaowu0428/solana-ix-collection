@@ -1,8 +1,14 @@
+//! Pump 指令辅助函数。
+
 use solana_sdk::signature::Signature;
 use utils::IndexedInstruction;
 
 use crate::pump::{PumpTradeIx, event::PumpTradeEvent};
 
+/// 从已展平的指令列表中配对收集 [`PumpTradeIx`] 和 [`PumpTradeEvent`]。
+///
+/// 按顺序将交易指令与对应的链上事件 zip 在一起并返回。
+/// 当指令数量与事件数量不匹配时，多余的尾部会被扎啊。
 pub fn collect_pump_trade_ix_event_pairs(
     flattened_ixs: &[IndexedInstruction],
 ) -> Vec<(PumpTradeIx, PumpTradeEvent)> {
