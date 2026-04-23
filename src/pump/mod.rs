@@ -189,6 +189,14 @@ impl_enum_getters!(
 );
 
 impl PumpCreateIxEnum {
+    /// 返回该 token 的 symbol 字符串。
+    pub fn symbol(&self) -> &str {
+        match self {
+            PumpCreateIxEnum::Create(ix) => &ix.symbol,
+            PumpCreateIxEnum::CreateV2(ix) => &ix.symbol,
+        }
+    }
+
     /// 判断该创建指令是否为 Mayhem 模式（Token-2022 发行）。
     pub fn is_mayhem(&self) -> bool {
         match self {
