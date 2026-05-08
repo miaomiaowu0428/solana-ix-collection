@@ -18,6 +18,7 @@ use crate::constants::{TOKEN_2022_PROGRAM_ID, WSOL_MINT};
 pub mod event;
 pub mod helpers;
 pub mod mayhem;
+pub mod pool;
 
 /// Pump 买入指令（精确 token 输出模式）。
 ///
