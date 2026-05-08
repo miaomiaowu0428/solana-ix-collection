@@ -13,7 +13,7 @@ use solana_sdk::signature::Signature;
 use solana_tx_parser::instruction;
 use utils::{IndexedInstruction, impl_enum_getters};
 
-use crate::constants::TOKEN_2022_PROGRAM_ID;
+use crate::constants::{TOKEN_2022_PROGRAM_ID, WSOL_MINT};
 
 pub mod event;
 pub mod helpers;
@@ -109,6 +109,122 @@ instruction!(
     data: {
         token_amoutn: u64,
         min_sol_out: u64,
+    },
+);
+
+instruction!(
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    name: PumpBuyV2Ix,
+    discriminator: [184, 23, 238, 97, 103, 197, 211, 61],
+    accounts: {
+        global: { writable: false, signer: false },
+        base_mint: { writable: false, signer: false },
+        quote_mint: { writable: false, signer: false },
+        base_token_program: { writable: false, signer: false },
+        quote_token_program: { writable: false, signer: false },
+        associated_token_program: { writable: false, signer: false },
+        fee_recipient: { writable: true, signer: false },
+        associated_quote_fee_recipient: { writable: true, signer: false },
+        buyback_fee_recipient: { writable: true, signer: false },
+        associated_quote_buyback_fee_recipient: { writable: true, signer: false },
+        bonding_curve: { writable: true, signer: false },
+        associated_base_bonding_curve: { writable: true, signer: false },
+        associated_quote_bonding_curve: { writable: true, signer: false },
+        user: { writable: true, signer: true },
+        associated_base_user: { writable: true, signer: false },
+        associated_quote_user: { writable: true, signer: false },
+        creator_vault: { writable: true, signer: false },
+        associated_creator_vault: { writable: true, signer: false },
+        sharing_config: { writable: false, signer: false },
+        global_volume_accumulator: { writable: false, signer: false },
+        user_volume_accumulator: { writable: true, signer: false },
+        associated_user_volume_accumulator: { writable: true, signer: false },
+        fee_config: { writable: false, signer: false },
+        fee_program: { writable: false, signer: false },
+        system_program: { writable: false, signer: false },
+        event_authority: { writable: false, signer: false },
+        program: { writable: false, signer: false },
+    },
+    data: {
+        amount: u64,
+        max_sol_cost: u64,
+    },
+);
+
+instruction!(
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    name: PumpBuyExactQuoteInV2Ix,
+    discriminator: [194, 171, 28, 70, 104, 77, 91, 47],
+    accounts: {
+        global: { writable: false, signer: false },
+        base_mint: { writable: false, signer: false },
+        quote_mint: { writable: false, signer: false },
+        base_token_program: { writable: false, signer: false },
+        quote_token_program: { writable: false, signer: false },
+        associated_token_program: { writable: false, signer: false },
+        fee_recipient: { writable: true, signer: false },
+        associated_quote_fee_recipient: { writable: true, signer: false },
+        buyback_fee_recipient: { writable: true, signer: false },
+        associated_quote_buyback_fee_recipient: { writable: true, signer: false },
+        bonding_curve: { writable: true, signer: false },
+        associated_base_bonding_curve: { writable: true, signer: false },
+        associated_quote_bonding_curve: { writable: true, signer: false },
+        user: { writable: true, signer: true },
+        associated_base_user: { writable: true, signer: false },
+        associated_quote_user: { writable: true, signer: false },
+        creator_vault: { writable: true, signer: false },
+        associated_creator_vault: { writable: true, signer: false },
+        sharing_config: { writable: false, signer: false },
+        global_volume_accumulator: { writable: false, signer: false },
+        user_volume_accumulator: { writable: true, signer: false },
+        associated_user_volume_accumulator: { writable: true, signer: false },
+        fee_config: { writable: false, signer: false },
+        fee_program: { writable: false, signer: false },
+        system_program: { writable: false, signer: false },
+        event_authority: { writable: false, signer: false },
+        program: { writable: false, signer: false },
+    },
+    data: {
+        spendable_quote_in: u64,
+        min_tokens_out: u64,
+    },
+);
+
+instruction!(
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    name: PumpSellV2Ix,
+    discriminator: [93, 246, 130, 60, 231, 233, 64, 178],
+    accounts: {
+        global: { writable: false, signer: false },
+        base_mint: { writable: false, signer: false },
+        quote_mint: { writable: false, signer: false },
+        base_token_program: { writable: false, signer: false },
+        quote_token_program: { writable: false, signer: false },
+        associated_token_program: { writable: false, signer: false },
+        fee_recipient: { writable: true, signer: false },
+        associated_quote_fee_recipient: { writable: true, signer: false },
+        buyback_fee_recipient: { writable: true, signer: false },
+        associated_quote_buyback_fee_recipient: { writable: true, signer: false },
+        bonding_curve: { writable: true, signer: false },
+        associated_base_bonding_curve: { writable: true, signer: false },
+        associated_quote_bonding_curve: { writable: true, signer: false },
+        user: { writable: true, signer: true },
+        associated_base_user: { writable: true, signer: false },
+        associated_quote_user: { writable: true, signer: false },
+        creator_vault: { writable: true, signer: false },
+        associated_creator_vault: { writable: true, signer: false },
+        sharing_config: { writable: false, signer: false },
+        user_volume_accumulator: { writable: true, signer: false },
+        associated_user_volume_accumulator: { writable: true, signer: false },
+        fee_config: { writable: false, signer: false },
+        fee_program: { writable: false, signer: false },
+        system_program: { writable: false, signer: false },
+        event_authority: { writable: false, signer: false },
+        program: { writable: false, signer: false },
+    },
+    data: {
+        amount: u64,
+        min_sol_output: u64,
     },
 );
 
@@ -232,20 +348,23 @@ impl TryFrom<&IndexedInstruction> for PumpCreateIxEnum {
     }
 }
 
-/// Pump 交易指令统一枚举，覆盖买入（两种模式）和卖出。
+/// Pump 交易指令统一枚举，覆盖 v1/v2 买卖指令。
 ///
 /// 可遇过 [`PumpTradeIx::from_indexed_instruction`] 从链上指令自动识别并构建。
 #[derive(Debug, Clone)]
 pub enum PumpTradeIx {
     Buy(PumpBuyIx),
     BuyExactIn(PumpBuyExactInIx),
+    BuyV2(PumpBuyV2Ix),
+    BuyExactQuoteInV2(PumpBuyExactQuoteInV2Ix),
     Sell(PumpSellIx),
+    SellV2(PumpSellV2Ix),
 }
 
 impl PumpTradeIx {
     /// 尝试从单条 [`IndexedInstruction`] 解析出一个 [`PumpTradeIx`]。
     ///
-    /// 依次尝试 `Buy` → `BuyExactIn` → `Sell`，首个匹配成功即返回。
+    /// 依次尝试 v1/v2 买卖指令，首个匹配成功即返回。
     pub fn from_indexed_instruction(ix: &IndexedInstruction) -> Option<Self> {
         if let Some(ix) = PumpBuyIx::from_indexed_instruction(ix) {
             return Some(Self::Buy(ix));
@@ -253,8 +372,17 @@ impl PumpTradeIx {
         if let Some(ix) = PumpBuyExactInIx::from_indexed_instruction(ix) {
             return Some(Self::BuyExactIn(ix));
         }
+        if let Some(ix) = PumpBuyV2Ix::from_indexed_instruction(ix) {
+            return Some(Self::BuyV2(ix));
+        }
+        if let Some(ix) = PumpBuyExactQuoteInV2Ix::from_indexed_instruction(ix) {
+            return Some(Self::BuyExactQuoteInV2(ix));
+        }
         if let Some(ix) = PumpSellIx::from_indexed_instruction(ix) {
             return Some(Self::Sell(ix));
+        }
+        if let Some(ix) = PumpSellV2Ix::from_indexed_instruction(ix) {
+            return Some(Self::SellV2(ix));
         }
         None
     }
@@ -262,22 +390,74 @@ impl PumpTradeIx {
 
 impl_enum_getters!(
     PumpTradeIx,
-    variants = [Buy,BuyExactIn,Sell],
+    variants = [Buy,BuyExactIn,BuyV2,BuyExactQuoteInV2,Sell,SellV2],
     fields = [
         slot: u64,
-        fee_recipient: Pubkey,
-        token_program: Pubkey,
         user: Pubkey,
-        mint: Pubkey,
         bonding_curve: Pubkey,
     ]
 );
 
 impl PumpTradeIx {
+    pub fn fee_recv(&self) -> Pubkey {
+        match self {
+            PumpTradeIx::Buy(ix) => ix.fee_recipient,
+            PumpTradeIx::BuyExactIn(ix) => ix.fee_recipient,
+            PumpTradeIx::BuyV2(ix) => ix.fee_recipient,
+            PumpTradeIx::BuyExactQuoteInV2(ix) => ix.fee_recipient,
+            PumpTradeIx::Sell(ix) => ix.fee_recipient,
+            PumpTradeIx::SellV2(ix) => ix.fee_recipient,
+        }
+    }
+
+    pub fn base_token_program(&self) -> Pubkey {
+        match self {
+            PumpTradeIx::Buy(ix) => ix.token_program,
+            PumpTradeIx::BuyExactIn(ix) => ix.token_program,
+            PumpTradeIx::BuyV2(ix) => ix.base_token_program,
+            PumpTradeIx::BuyExactQuoteInV2(ix) => ix.base_token_program,
+            PumpTradeIx::Sell(ix) => ix.token_program,
+            PumpTradeIx::SellV2(ix) => ix.base_token_program,
+        }
+    }
+
+    pub fn quote_mint(&self) -> Pubkey {
+        match self {
+            PumpTradeIx::Buy(_) => WSOL_MINT,
+            PumpTradeIx::BuyExactIn(_) => WSOL_MINT,
+            PumpTradeIx::BuyV2(ix) => ix.quote_mint,
+            PumpTradeIx::BuyExactQuoteInV2(ix) => ix.quote_mint,
+            PumpTradeIx::Sell(_) => WSOL_MINT,
+            PumpTradeIx::SellV2(ix) => ix.quote_mint,
+        }
+    }
+
+    pub fn quote_token_program(&self) -> Pubkey {
+        match self {
+            PumpTradeIx::Buy(_) => spl_token::ID,
+            PumpTradeIx::BuyExactIn(_) => spl_token::ID,
+            PumpTradeIx::BuyV2(ix) => ix.quote_token_program,
+            PumpTradeIx::BuyExactQuoteInV2(ix) => ix.quote_token_program,
+            PumpTradeIx::Sell(_) => spl_token::ID,
+            PumpTradeIx::SellV2(ix) => ix.quote_token_program,
+        }
+    }
+
+    pub fn mint(&self) -> Pubkey {
+        match self {
+            PumpTradeIx::Buy(ix) => ix.mint,
+            PumpTradeIx::BuyExactIn(ix) => ix.mint,
+            PumpTradeIx::BuyV2(ix) => ix.base_mint,
+            PumpTradeIx::BuyExactQuoteInV2(ix) => ix.base_mint,
+            PumpTradeIx::Sell(ix) => ix.mint,
+            PumpTradeIx::SellV2(ix) => ix.base_mint,
+        }
+    }
+
     /// 判断该交易是否为 Mayhem 模式（Token-2022 + Mayhem 手续费账户）。
     pub fn is_mayhem(&self) -> bool {
-        self.token_program() == TOKEN_2022_PROGRAM_ID
-            && mayhem::MAYHEM_FEE_RECV.contains(&&self.fee_recipient())
+        self.base_token_program() == TOKEN_2022_PROGRAM_ID
+            && mayhem::MAYHEM_FEE_RECV.contains(&&self.fee_recv())
     }
 
     /// 判断该交易是否为买入方向。
@@ -285,7 +465,10 @@ impl PumpTradeIx {
         match self {
             PumpTradeIx::Buy { .. } => true,
             PumpTradeIx::BuyExactIn { .. } => true,
+            PumpTradeIx::BuyV2 { .. } => true,
+            PumpTradeIx::BuyExactQuoteInV2 { .. } => true,
             PumpTradeIx::Sell { .. } => false,
+            PumpTradeIx::SellV2 { .. } => false,
         }
     }
 }
