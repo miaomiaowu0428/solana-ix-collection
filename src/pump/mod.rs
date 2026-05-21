@@ -11,7 +11,7 @@ use solana_sdk::borsh1;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
 use solana_tx_parser::instruction;
-use utils::{IndexedInstruction, impl_enum_getters};
+use utils::{impl_enum_getters, IndexedInstruction};
 
 use crate::constants::{TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, WSOL_MINT};
 
@@ -260,7 +260,6 @@ instruction!(
     }
 );
 
-
 instruction!(
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpCreateV2Ix,
@@ -294,10 +293,7 @@ instruction!(
 
 impl PumpCreateV2Ix {
     pub fn quote_mint(&self) -> Pubkey {
-        self.remain_accounts
-            .get(0)
-            .copied()
-            .unwrap_or(WSOL_MINT)
+        self.remain_accounts.get(0).copied().unwrap_or(WSOL_MINT)
     }
     pub fn quote_program(&self) -> Pubkey {
         self.remain_accounts
@@ -545,4 +541,86 @@ instruction! {
         associated_token_program: { writable: false, signer: false }
     },
     data: {}
+}
+
+instruction! {
+    program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    name: PumpMigrateV2Ix,
+    discriminator: [187, 203, 18, 31, 206, 237, 254, 41],
+    accounts: {
+        global: { writable: false, signer: false },
+        withdraw_authority: { writable: true, signer: false },
+        base_mint: { writable: false, signer: false },
+        quote_mint: { writable: false, signer: false },
+        bonding_curve: { writable: true, signer: false },
+        associated_base_bonding_curve: { writable: true, signer: false },
+        associated_quote_bonding_curve: { writable: true, signer: false },
+        user: { writable: false, signer: true },
+        system_program: { writable: false, signer: false },
+        pump_amm: { writable: false, signer: false },
+        pool: { writable: true, signer: false },
+        pool_authority: { writable: true, signer: false },
+        pool_authority_mint_account: { writable: true, signer: false },
+        pool_authority_quote_account: { writable: true, signer: false },
+        amm_global_config: { writable: false, signer: false },
+        lp_mint: { writable: true, signer: false },
+        user_pool_token_account: { writable: true, signer: false },
+        pool_base_token_account: { writable: true, signer: false },
+        pool_quote_token_account: { writable: true, signer: false },
+        base_token_program: { writable: false, signer: false },
+        quote_token_program: { writable: false, signer: false },
+        token_2022_program: { writable: false, signer: false },
+        associated_token_program: { writable: false, signer: false },
+        pump_amm_event_authority: { writable: false, signer: false },
+        rent: { writable: false, signer: false },
+        event_authority: { writable: false, signer: false },
+        program: { writable: false, signer: false }
+    },
+    data: {}
+}
+
+#[derive(Debug, Clone)]
+pub enum PumpMigrateIxEnum {
+    V1(PumpMigrateIx),
+    V2(PumpMigrateV2Ix),
+}
+
+impl PumpMigrateIxEnum {
+    pub fn base_mint(&self) -> solana_sdk::pubkey::Pubkey {
+        match self {
+            PumpMigrateIxEnum::V1(ix) => ix.mint,
+            PumpMigrateIxEnum::V2(ix) => ix.base_mint,
+        }
+    }
+
+    pub fn quote_mint(&self) -> solana_sdk::pubkey::Pubkey {
+        match self {
+            PumpMigrateIxEnum::V1(_) => crate::constants::WSOL_MINT,
+            PumpMigrateIxEnum::V2(ix) => ix.quote_mint,
+        }
+    }
+
+    pub fn user(&self) -> solana_sdk::pubkey::Pubkey {
+        match self {
+            PumpMigrateIxEnum::V1(ix) => ix.user,
+            PumpMigrateIxEnum::V2(ix) => ix.user,
+        }
+    }
+
+    pub fn pool(&self) -> solana_sdk::pubkey::Pubkey {
+        match self {
+            PumpMigrateIxEnum::V1(ix) => ix.pool,
+            PumpMigrateIxEnum::V2(ix) => ix.pool,
+        }
+    }
+
+    pub fn from_indexed_instruction(ix: &utils::IndexedInstruction) -> Option<Self> {
+        if let Some(v1) = PumpMigrateIx::from_indexed_instruction(ix) {
+            return Some(PumpMigrateIxEnum::V1(v1));
+        }
+        if let Some(v2) = PumpMigrateV2Ix::from_indexed_instruction(ix) {
+            return Some(PumpMigrateIxEnum::V2(v2));
+        }
+        None
+    }
 }
