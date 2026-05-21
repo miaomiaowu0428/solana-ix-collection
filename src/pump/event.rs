@@ -6,6 +6,8 @@
 use solana_sdk::borsh1;
 use solana_sdk::pubkey::Pubkey;
 use solana_tx_parser::instruction;
+
+type Shareholder = (Pubkey, u16);
 /// Pump 链上交易事件。
 ///
 /// 包含一笔 buy/sell 交易的全量信息，包括虚拟储备、实际储备、手续费、
@@ -32,14 +34,21 @@ instruction! {
         creator: Pubkey,
         creator_fee_basis_points: u64,
         creator_fee: u64,
-        track_valume: bool,
+        track_volume: bool,
         total_unclaimed_tokens: u64,
         total_claimed_tokens: u64,
         current_sol_volume: u64,
-        last_updated: i64,
+        last_update_timestamp: i64,
         ix_name: String,
-        is_mayhem: bool,
+        mayhem_mode: bool,
         cashback_fee_basis_points: u64,
-        cashback: u64
+        cashback: u64,
+        buyback_fee_basis_points: u64,
+        buyback_fee: u64,
+        shareholders: Vec<Shareholder>,
+        quote_mint: Pubkey,
+        quote_amount: u64,
+        virtual_quote_reserves: u64,
+        real_quote_reserves: u64
     },
 }

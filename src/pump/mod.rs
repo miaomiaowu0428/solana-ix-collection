@@ -13,7 +13,7 @@ use solana_sdk::signature::Signature;
 use solana_tx_parser::instruction;
 use utils::{IndexedInstruction, impl_enum_getters};
 
-use crate::constants::{TOKEN_2022_PROGRAM_ID, WSOL_MINT};
+use crate::constants::{TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID, WSOL_MINT};
 
 pub mod event;
 pub mod helpers;
@@ -260,10 +260,7 @@ instruction!(
     }
 );
 
-/// Pump 创建 token（v2）指令（支持 Mayhem / Token-2022）。
-///
-/// 在 v1 基础上增加了 `mayhem` 开关，
-/// mayhem 模式使用 Token-2022 程序发行 token。
+
 instruction!(
     program_id: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
     name: PumpCreateV2Ix,
@@ -277,6 +274,14 @@ instruction!(
         user: { writable: true, signer: true},
         system: { writable: false, signer: false},
         token_program: { writable: false, signer: false},
+        ata_program: { writable: false, signer: false},
+        mayhem_program: { writable: false, signer: false},
+        global_param: { writable: false, signer: false},
+        sol_vault: { writable: true, signer: false},
+        mayhem_state: { writable: true, signer: false},
+        meyhem_token_vault: { writable: true, signer: false},
+        event_authority: { writable: false, signer: false},
+        program: { writable: false, signer: false},
     },
     data: {
         name: String,
@@ -286,6 +291,21 @@ instruction!(
         mayhem: bool
     }
 );
+
+impl PumpCreateV2Ix {
+    pub fn quote_mint(&self) -> Pubkey {
+        self.remain_accounts
+            .get(0)
+            .copied()
+            .unwrap_or(WSOL_MINT)
+    }
+    pub fn quote_program(&self) -> Pubkey {
+        self.remain_accounts
+            .get(2)
+            .copied()
+            .unwrap_or(TOKEN_PROGRAM_ID)
+    }
+}
 
 /// Pump 创建指令统一枚举，同时支持 v1 和 v2。
 #[derive(Debug, Clone)]
@@ -311,6 +331,24 @@ impl PumpCreateIxEnum {
         match self {
             PumpCreateIxEnum::Create(ix) => &ix.symbol,
             PumpCreateIxEnum::CreateV2(ix) => &ix.symbol,
+        }
+    }
+
+    /// 创建指令的 quote mint。
+    /// v1 固定为 wSOL，v2 由 remain_accounts 解析。
+    pub fn quote_mint(&self) -> Pubkey {
+        match self {
+            PumpCreateIxEnum::Create(_) => WSOL_MINT,
+            PumpCreateIxEnum::CreateV2(ix) => ix.quote_mint(),
+        }
+    }
+
+    /// 创建指令的 quote token program。
+    /// v1 固定为 SPL Token Program，v2 由 remain_accounts 解析。
+    pub fn quote_program(&self) -> Pubkey {
+        match self {
+            PumpCreateIxEnum::Create(_) => TOKEN_PROGRAM_ID,
+            PumpCreateIxEnum::CreateV2(ix) => ix.quote_program(),
         }
     }
 

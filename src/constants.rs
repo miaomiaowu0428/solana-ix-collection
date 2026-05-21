@@ -13,6 +13,10 @@ pub const PUMP_AMM_PROGRAM_ID: Pubkey =
 /// Wrapped SOL（wSOL）Mint 地址。
 pub const WSOL_MINT: Pubkey = solana_sdk::pubkey!("So11111111111111111111111111111111111111112");
 
+/// SPL Token 程序地址（Token Program v1）。
+pub const TOKEN_PROGRAM_ID: Pubkey =
+    solana_sdk::pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+
 /// Token-2022 程序地址。
 pub const TOKEN_2022_PROGRAM_ID: Pubkey =
     solana_sdk::pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
