@@ -10,8 +10,8 @@
 //! ```
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_sdk::pubkey::Pubkey;
 use solana_sdk::borsh1;
+use solana_sdk::pubkey::Pubkey;
 
 /// Pump.fun BondingCurve 的 8 字节 discriminator
 pub const DISCRIMINATOR: [u8; 8] = [23, 183, 248, 55, 96, 216, 172, 96];
