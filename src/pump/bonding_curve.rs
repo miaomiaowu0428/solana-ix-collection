@@ -12,6 +12,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_sdk::borsh1;
 use solana_sdk::pubkey::Pubkey;
+use utils::PoolPriceInfo;
 
 /// Pump.fun BondingCurve 的 8 字节 discriminator
 pub const DISCRIMINATOR: [u8; 8] = [23, 183, 248, 55, 96, 216, 172, 96];
@@ -31,12 +32,23 @@ pub struct BondingCurve {
 
 impl BondingCurve {
     /// 从原始账户数据（含 8 字节 discriminator 前缀）解析。
-    /// 失败（discriminator 不匹配 / 数据不足 / 反序列化错误）返回 `None`。
     pub fn try_from(data: &[u8]) -> Option<Self> {
         if data.len() < 8 || data[..8] != DISCRIMINATOR {
             return None;
         }
         borsh1::try_from_slice_unchecked(&data[8..]).ok()
+    }
+
+    /// 当前 SOL 本位价格 = virtual_sol_reserves / virtual_token_reserves
+    /// 仅在 virtual_token_reserves > 0 时返回有效值。
+    pub fn price(&self) -> f64 {
+        let mut p = PoolPriceInfo{
+            base_reserve: self.virtual_token_reserves,
+            quote_reserve: self.virtual_sol_reserves,
+            ..Default::default()
+        };
+        p.update_price();
+        p.base_price_in_quote
     }
 }
 
