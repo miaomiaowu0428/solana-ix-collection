@@ -3,7 +3,7 @@
 use solana_sdk::signature::Signature;
 use utils::IndexedInstruction;
 
-use crate::pump::{event::PumpTradeEvent, PumpTradeIx};
+use crate::pump::{PumpTradeIx, event::PumpTradeEvent};
 
 /// 从已展平的指令列表中配对收集 [`PumpTradeIx`] 和 [`PumpTradeEvent`]。
 ///

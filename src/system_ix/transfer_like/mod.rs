@@ -25,8 +25,8 @@ use crate::system_ix::transfer_like::{
 
 pub mod spl_program;
 pub mod stake_program;
-pub mod transfer;
 pub mod tip_addresses;
+pub mod transfer;
 
 static WSOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 
