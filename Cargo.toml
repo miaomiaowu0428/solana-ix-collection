@@ -23,31 +23,31 @@ tokio = "1.49.0"
 chrono = "0.4.43"
 log = "0.4.29"
 anyhow = "1.0.100"
-grpc-client = { git = "https://github.com/miaomiaowu0428/grpc-client.git" }
-solana-tx-parser = { git = "https://github.com/miaomiaowu0428/solana-tx-parser.git" }
-utils = { git = "https://github.com/miaomiaowu0428/sol-utils.git" }
+grpc-client = { git = "https://github.com/miaomiaowu0428/grpc-client.git", branch = "supportV1" }
+solana-tx-parser = { git = "https://github.com/miaomiaowu0428/solana-tx-parser.git", branch = "supportV1" }
+utils = { git = "https://github.com/miaomiaowu0428/sol-utils.git", branch = "supportV1" }
 dotenvy = "0.15.7"
 hex = "0.4.3"
 sled = "0.34"
-solana-sdk = "3.0.0"
-solana-client = "3.1.8"
+solana-sdk = "4.0.0"
+solana-client = "4.2.2"
 yellowstone-grpc-proto = "10.1.1"
 spl-associated-token-account = "8.0.0"
-spl-token = "9.0.0"
+spl-token-interface = "9.0.0"
 solana-sdk-ids = "3.1.0"
-solana-system-interface = "2.0.0"
-solana-commitment-config = "3.1.0"
+solana-system-interface = "3.0.0"
+solana-commitment-config = "4.0.0"
 rand_chacha = "0.9.0"
 rand_core = "0.9.5"
-spl-token-2022 = { version = "10.0.0", features = ["no-entrypoint"] }
+spl-token-2022-interface = { version = "10.0.0" }
 hashbrown = "0.15.5"
 dashmap = "6.1.0"
 once_cell = "1.21.3"
-solana-nonce = "3.0.0"
-solana-address-lookup-table-interface = "3.0.1"
-solana-transaction-status-client-types = "3.1.8"
+solana-nonce = "4.0.0"
+solana-address-lookup-table-interface = "3.1.0"
+solana-transaction-status-client-types = "4.2.2"
 yellowstone-grpc-client = "10.2.0"
-solana-entry = "3.1.8"
+solana-entry = "4.2.2"
 prost = "0.13"
 futures = "0.3.31"
 rayon = "1.11.0"
@@ -56,5 +56,7 @@ tokio-util = { version = "0.7.18", features = ["codec"] }
 const-hex = "1.17.0"
 arrayvec = "0.7.6"
 arc-swap = "1.8.0"
-transaction-monitor = { git = "https://github.com/miaomiaowu0428/transaction-monitor.git" }
-transaction-cache= { git = "https://github.com/miaomiaowu0428/transaction-cache.git" }
+transaction-monitor = { git = "https://github.com/miaomiaowu0428/transaction-monitor.git", branch = "supportV1" }
+transaction-cache= { git = "https://github.com/miaomiaowu0428/transaction-cache.git", branch = "supportV1" }
+
+[workspace]
