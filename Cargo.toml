@@ -58,5 +58,3 @@ arrayvec = "0.7.6"
 arc-swap = "1.8.0"
 transaction-monitor = { git = "https://github.com/miaomiaowu0428/transaction-monitor.git", branch = "supportV1" }
 transaction-cache= { git = "https://github.com/miaomiaowu0428/transaction-cache.git", branch = "supportV1" }
-
-[workspace]
